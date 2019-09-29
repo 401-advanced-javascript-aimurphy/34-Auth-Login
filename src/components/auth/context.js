@@ -23,10 +23,11 @@ class LoginProvider extends React.Component {
     };
   }
 
-  login = (username, password) => {
+  login = (user) => {
     // This is foul and unsafe ... but when working offline / testmode ess oh kay
-    if (testLogins[username]) {
-      this.validateToken(testLogins[username]);
+    console.log('contextlogin', '❤️',user.password);
+    if (testLogins[user.username]) {
+      this.validateToken(testLogins[user.username]);
     }
     else {
       fetch(`${API}/signin`, {
@@ -34,36 +35,67 @@ class LoginProvider extends React.Component {
         mode: 'cors',
         cache: 'no-cache',
         headers: new Headers({
-          "Authorization": `Basic ${btoa(`${username}:${password}`)}`
+          "Authorization": `Basic ${btoa(`${user.username}:${user.password}`)}`
         })
       })
         .then(response => response.text())
         .then(token => this.validateToken(token))
         .catch(console.error);
     }
+
+    // fetch(`${API}/signin`, {
+    //   method: 'post',
+    //   mode: 'cors',
+    //   cache: 'no-cache',
+    //   headers: new Headers({
+    //     "Authorization": `Basic ${btoa(`${username}:${password}`)}`
+    //     })
+    //   })
+    //   .then(response => response.text())
+    //   .then(token => this.validateToken(token))
+    //   .catch(console.error);
   }
 
   validateToken = token => {
+    // try {
+    //   let user = jwt.verify(token, process.env.REACT_APP_SECRET)
+    //   console.log('all good');
+    //   this.setLoginState(true, token, user);
+    // }
+    // catch (e) {
+    //   this.setLoginState(false, null, {});
+    //   console.log("Token Validation Error", e);
+    // }
+    console.log('⚠️',token);
     try {
-      let user = jwt.verify(token, process.env.REACT_APP_SECRET)
-      console.log('all good');
-      this.setLoginState(true, token, user);
-    }
-    catch (e) {
-      this.setLoginState(false, null, {});
-      console.log("Token Validation Error", e);
+      let user = jwt.verify(token, process.env.REACT_APP_SECRET);
+      if (user.id) {
+        cookie.save('auth', token);
+        this.setState({ loggedIn: true, capabilities: user.capabilities });
+        console.log('capable of',user.capabilities);
+      }
+    } catch (e) {
+      console.error(e);
     }
 
   };
 
   logout = () => {
-    this.setLoginState(false, null, {});
+    // this.setLoginState(false, null, {});
+    cookie.save('auth', null);
+    this.setState({ loggedIn: false });
+
   };
 
-  setLoginState = (loggedIn, token, user) => {
-    cookie.save('auth', token);
-    this.setState({ token, loggedIn, user });
-  };
+  // setLoginState = (loggedIn, token, user) => {
+  //   cookie.save('auth', token);
+  //   this.setState({ token, loggedIn, user });
+  // };
+
+  componentDidMount() {
+    let token = cookie.load('auth');
+    this.validateToken(token);
+  }
 
   render() {
     return (

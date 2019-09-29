@@ -1,52 +1,55 @@
-import React from 'react';
+import React, { useContext, useState } from 'react';
 import { LoginContext } from './context.js';
 
 const If = props => {
   return !!props.condition ? props.children : null;
 };
 
-class Login extends React.Component {
-  static contextType = LoginContext;
+const Login =props=> {
+  const loginContext = useContext(LoginContext);
+  const [formData, setFormData] = useState({});
 
-  constructor(props) {
-    super(props);
-    this.state = { username: '', password: '' };
-  }
+  // constructor(props) {
+  //   super(props);
+  //   this.state = { username: '', password: '' };
+  // }
 
-  handleChange = e => {
-    this.setState({ [e.target.name]: e.target.value });
+ 
+  const handleChange = e => {
+    console.log('change',formData);
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  handleSubmit = e => {
+  const handleSubmit = e => {
     e.preventDefault();
-    this.context.login(this.state.username, this.state.password);
+    loginContext.login(formData);
+    console.log('submit',formData)
   };
 
-  render() {
     return (
       <>
-        <If condition={this.context.loggedIn}>
-          <button onClick={this.context.logout}>Log Out</button>
+        <If condition={loginContext.loggedIn}>
+          <button onClick={loginContext.logout}>Log Out</button>
         </If>
 
-        <If condition={!this.context.loggedIn}>
-          <form onSubmit={this.handleSubmit}>
+        <If condition={!loginContext.loggedIn}>
+          <form onSubmit={handleSubmit}>
             <input
               placeholder="UserName"
               name="username"
-              onChange={this.handleChange}
+              onChange={handleChange}
             />
             <input
               placeholder="password"
               name="password"
-              onChange={this.handleChange}
+              onChange={handleChange}
             />
             <button>Login</button>
           </form>
         </If>
       </>
     );
-  }
+  
 }
 
 export default Login;
