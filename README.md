@@ -1,6 +1,6 @@
 # LAB - 34
 
-## <Login /> and <Auth />
+## `<Login />` and `<Auth />`
 
 ### Author: Ai
 
