@@ -59,13 +59,13 @@ const ToDo =props=> {
     return (
       <>
         <section className="todo">
-        <Auth capability={loginContext.capability}>
+        <Auth capability="read">
         <div>
             <Counter count={state.todoList.length} />
           </div>
         </Auth>
 
-        <Auth capability={loginContext.capability}>
+        <Auth capability="{loginContext.capability}">
         <div>
             <form onSubmit={addItem}>
               <input
