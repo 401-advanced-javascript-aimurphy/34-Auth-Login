@@ -1,21 +1,35 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import { LoginContext } from './context';
 
 const If = props => {
   return !!props.condition ? props.children : null;
 };
 
-class Auth extends React.Component {
-  static contextType = LoginContext;
-  render() {
+const Auth = props=> {
+  const loginContext = useContext(LoginContext);
+
+  console.log('are you capable?',loginContext.capabilities);
+
     let okToRender = false;
 
     try {
-      okToRender =
-        this.context.loggedIn &&
-        (this.props.capability
-          ? this.context.user.capabilities.includes(this.props.capability)
-          : true);
+      // loginContext.loggedIn &&
+      //   (props.capability
+      //     ? loginContext.user.capabilities.includes(props.capability)
+      //     : true);
+      let okToRender = loginContext.loggedIn === true;
+      if (okToRender) {
+        if (props.capability) {
+          if (loginContext.capabilities.includes(props.capability)) {
+            console.log('are you capable?',props.capability);
+            okToRender = true;
+          } else {
+            okToRender = false;
+          }
+        } else {
+          okToRender = true;
+        }
+      }
     } catch (e) {
       console.warn("Not Authorized");
     }
@@ -31,10 +45,10 @@ class Auth extends React.Component {
 
     return (
       <If condition={okToRender}>
-        <div>{this.props.children}</div>
+        <div>{props.children}</div>
       </If>
     );
-  }
+  
 }
 
 export default Auth;

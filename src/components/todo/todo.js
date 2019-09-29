@@ -1,17 +1,19 @@
-import React from "react";
+import React,{useContext} from "react";
 import uuid from "uuid/v4";
 import Counter from "../counter/counter.js";
 import { When } from "../if";
-
+import { LoginContext } from '../auth/context.js';
+import Auth from '../auth/auth.js'
 import "./todo.scss";
 
-class ToDo extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { todoList: [], item: {}, editing: false };
-  }
+const ToDo =props=> {
+  
+   let state = { todoList: [], item: {}, editing: false };
+  
 
-  handleInputChange = e => {
+  const loginContext = useContext(LoginContext);
+
+  const handleInputChange = e => {
     let item = {
       text: e.target.value,
       complete: !!e.target.complete,
@@ -20,26 +22,26 @@ class ToDo extends React.Component {
     this.setState({ item });
   };
 
-  addItem = e => {
+  const addItem = e => {
     e.preventDefault();
     e.target.reset();
     this.setState({ todoList: [...this.state.todoList, this.state.item] });
   };
 
-  updateItem = e => {
+  const updateItem = e => {
     e.preventDefault();
     this.saveItem(this.state.item);
   };
 
-  toggleComplete = id => {
-    let item = this.state.todoList.filter(i => i.id === id)[0] || {};
+  const toggleComplete = id => {
+    let item = state.todoList.filter(i => i.id === id)[0] || {};
     if (item.id) {
       item.complete = !item.complete;
-      this.saveItem(item);
+      saveItem(item);
     }
   };
 
-  saveItem = updatedItem => {
+  const saveItem = updatedItem => {
     this.setState({
       todoList: this.state.todoList.map(item =>
         item.id === updatedItem.id ? updatedItem : item
@@ -48,46 +50,53 @@ class ToDo extends React.Component {
     });
   };
 
-  toggleEdit = id => {
+  const toggleEdit = id => {
     let editing = this.state.editing === id ? false : id;
     this.setState({ editing });
   };
 
-  render() {
+
     return (
       <>
         <section className="todo">
-          <div>
-            <Counter count={this.state.todoList.length} />
+        <Auth capability={loginContext.capability}>
+        <div>
+            <Counter count={state.todoList.length} />
           </div>
+        </Auth>
 
-          <div>
-            <form onSubmit={this.addItem}>
+        <Auth capability={loginContext.capability}>
+        <div>
+            <form onSubmit={addItem}>
               <input
                 placeholder="Add To Do List Item"
-                onChange={this.handleInputChange}
+                onChange={handleInputChange}
               />
             </form>
           </div>
 
+        </Auth>
+
+      
+
           <div>
             <ul>
-              {this.state.todoList &&
-                this.state.todoList.map(item => (
+              {state.todoList &&
+                state.todoList.map(item => (
                   <li
                     className={`complete-${item.complete.toString()}`}
                     key={item.id}
                   >
-                    <span onClick={() => this.toggleComplete(item.id)}>
+                    <span onClick={() => toggleComplete(item.id)}>
                       {item.text}
                     </span>
-                    <button onClick={() => this.toggleEdit(item.id)}>
+                    <button onClick={() => toggleEdit(item.id)}>
                       edit
                     </button>
-                    <When condition={this.state.editing === item.id}>
-                      <form onSubmit={this.updateItem}>
+                    <When condition={state.editing === item.id}>
+                      <form onSubmit={updateItem}>
                         <input
-                          onChange={this.handleInputChange}
+                          onChange={handleInputChange}
                           id={item.id}
                           complete={item.complete}
                           defaultValue={item.text}
@@ -101,7 +110,7 @@ class ToDo extends React.Component {
         </section>
       </>
     );
-  }
+
 }
 
 export default ToDo;
